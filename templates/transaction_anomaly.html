@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Transaction Anomaly Detection</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/transaction_anomaly.css') }}">
+</head>
+
+<body>
+
+<div class="module-page">
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% set prediction_message = namespace(value=None) %}
+    {% set explanation_message = namespace(value=None) %}
+
+    {% for category, message in messages %}
+
+        {% if category == "prediction" %}
+            {% set prediction_message.value = message %}
+
+        {% elif category == "explanation" %}
+            {% set explanation_message.value = message %}
+
+        {% endif %}
+
+    {% endfor %}
+
+
+    <!-- HEADER -->
+
+    <header class="module-header">
+
+        <div>
+            <span class="brand">BANKING ANALYTICS</span>
+
+            <h1>Transaction Anomaly Detection</h1>
+        </div>
+
+        <a href="/" class="home-btn">← Home</a>
+
+    </header>
+
+
+    <!-- MAIN -->
+
+    <main class="prediction-layout">
+
+
+        <!-- INPUT -->
+
+        <section class="input-panel">
+
+            <div class="panel-heading">
+
+                <span class="step">01</span>
+
+                <div>
+                    <h2>Transaction Details</h2>
+
+                    <p>
+                        Enter the required transaction information.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <form method="POST">
+
+                <div class="field-grid">
+
+
+                    <div class="field">
+
+                        <label>Transaction Amount</label>
+
+                        <input
+                            type="number"
+                            name="amount"
+                            min="1"
+                            step="0.01"
+                            placeholder="e.g. 5000"
+                            value="{{ form_data.amount if form_data else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Balance After Transaction</label>
+
+                        <input
+                            type="number"
+                            name="balance_after_transaction"
+                            min="0"
+                            step="0.01"
+                            placeholder="e.g. 200000"
+                            value="{{ form_data.balance_after_transaction if form_data else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field field-full">
+
+                        <label>Transaction Mode</label>
+
+                        <select
+                            name="transaction_mode"
+                            required
+                        >
+
+                            <option value="">Select</option>
+
+                            <option value="UPI"
+                                {% if form_data and form_data.transaction_mode == "UPI" %}selected{% endif %}>
+                                UPI
+                            </option>
+                            
+                            <option value="Debit Card"
+                                {% if form_data and form_data.transaction_mode == "Debit Card" %}selected{% endif %}>
+                                Debit Card
+                            </option>
+                            
+                            <option value="NEFT"
+                                {% if form_data and form_data.transaction_mode == "NEFT" %}selected{% endif %}>
+                                NEFT
+                            </option>
+                            
+                            <option value="IMPS"
+                                {% if form_data and form_data.transaction_mode == "IMPS" %}selected{% endif %}>
+                                IMPS
+                            </option>
+                            
+                            <option value="Credit Card"
+                                {% if form_data and form_data.transaction_mode == "Credit Card" %}selected{% endif %}>
+                                Credit Card
+                            </option>
+                            
+                            <option value="Cash Deposit"
+                                {% if form_data and form_data.transaction_mode == "Cash Deposit" %}selected{% endif %}>
+                                Cash Deposit
+                            </option>
+                            
+                            <option value="ATM"
+                                {% if form_data and form_data.transaction_mode == "ATM" %}selected{% endif %}>
+                                ATM
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <button type="submit" class="predict-btn">
+
+                    Detect Anomaly
+
+                    <span>→</span>
+
+                </button>
+                <button type="button" class="reset-btn">
+                    Clear Form
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- RESULT -->
+
+        <section class="result-panel">
+
+            <div class="panel-heading">
+
+                <span class="step">02</span>
+
+                <div>
+
+                    <h2>Prediction</h2>
+
+                    <p>
+                        Model output will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if prediction_message.value %}
+
+                <div class="prediction-result">
+
+                    <span class="result-label">
+                        MODEL PREDICTION
+                    </span>
+
+                    <h2>
+                        {{ prediction_message.value }}
+                    </h2>
+
+                    <p>
+                        The Isolation Forest model evaluated
+                        the submitted transaction.
+                    </p>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-result">
+
+                    <div class="result-icon">?</div>
+
+                    <h3>Awaiting Prediction</h3>
+
+                    <p>
+                        Enter transaction details and click
+                        <strong>Detect Anomaly</strong>.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+
+    <!-- INSIGHTS -->
+
+    <section class="insights">
+
+        <div class="insights-heading">
+
+            <span class="step">03</span>
+
+            <div>
+
+                <h2>Model & Prediction Insights</h2>
+
+                <p>
+                    How this anomaly detection was performed.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if explanation_message.value %}
+
+            <div class="prediction-explanation">
+
+                <h3>
+                    {{ prediction_message.value }}
+                </h3>
+
+                <p>
+                    {{ explanation_message.value }}
+                </p>
+
+
+                <h4>Model Information</h4>
+
+                <ul>
+
+                    <li>
+                        Algorithm — Isolation Forest
+                    </li>
+
+                    <li>
+                        Learning approach — Unsupervised Learning
+                    </li>
+
+                    <li>
+                        Features — Amount, Balance and Transaction Mode
+                    </li>
+
+                    <li>
+                        Contamination — 1% of transactions
+                    </li>
+
+                </ul>
+
+
+                <p>
+                    An anomaly represents an unusual transaction
+                    pattern and should not automatically be treated
+                    as confirmed fraud.
+                </p>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-result">
+
+                <div class="result-icon">?</div>
+
+                <h3>Awaiting Prediction</h3>
+
+                <p>
+                    Generate a prediction to view model insights.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <footer>
+        Banking Analytics • Machine Learning Project
+    </footer>
+
+
+{% endwith %}
+
+</div>
+    <script>
+    document.querySelector(".reset-btn").addEventListener("click", function () {
+        window.location.href = window.location.pathname;
+    });
+</script>
+
+</body>
+
+</html>

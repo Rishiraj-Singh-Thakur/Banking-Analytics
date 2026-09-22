@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Segmentation</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/customer_segmentation.css') }}">
+</head>
+
+<body>
+
+<div class="module-page">
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% set prediction_message = namespace(value=None) %}
+    {% set explanation_message = namespace(value=None) %}
+
+    {% for category, message in messages %}
+
+        {% if category == "prediction" %}
+            {% set prediction_message.value = message %}
+
+        {% elif category == "explanation" %}
+            {% set explanation_message.value = message %}
+
+        {% endif %}
+
+    {% endfor %}
+
+
+    <!-- HEADER -->
+
+    <header class="module-header">
+
+        <div>
+
+            <span class="brand">
+                BANKING ANALYTICS
+            </span>
+
+            <h1>
+                Customer Segmentation
+            </h1>
+
+        </div>
+
+        <a href="/" class="home-btn">
+            ← Home
+        </a>
+
+    </header>
+
+
+    <!-- MAIN -->
+
+    <main class="prediction-layout">
+
+
+        <!-- INPUT -->
+
+        <section class="input-panel">
+
+            <div class="panel-heading">
+
+                <span class="step">01</span>
+
+                <div>
+
+                    <h2>Customer Details</h2>
+
+                    <p>
+                        Enter customer financial and activity information.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form method="POST">
+
+                <div class="field-grid">
+
+
+                    <div class="field">
+
+                        <label>Age</label>
+
+                        <input
+                            type="number"
+                            name="age"
+                            min="18"
+                            max="100"
+                            placeholder="e.g. 35"
+                            value="{{ form_data.age if form_data else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>CIBIL Score</label>
+
+                        <input
+                            type="number"
+                            name="cibil_score"
+                            min="300"
+                            max="900"
+                            placeholder="300 - 900"
+                            value="{{ form_data.cibil_score if form_data else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Annual Income</label>
+
+                        <input
+                            type="number"
+                            name="annual_income"
+                            min="0"
+                            placeholder="Annual income"
+                            value="{{ form_data.annual_income if form_data else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Account Balance</label>
+
+                        <input
+                            type="number"
+                            name="account_balance"
+                            min="0"
+                            placeholder="Account balance"
+                            value="{{ form_data.account_balance if form_data else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Total Transactions</label>
+
+                        <input
+                            type="number"
+                            name="total_transactions"
+                            min="0"
+                            placeholder="e.g. 10"
+                            value="{{ form_data.total_transactions if form_data else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Total Transaction Amount</label>
+
+                        <input
+                            type="number"
+                            name="total_transaction_amount"
+                            min="0"
+                            placeholder="Total amount"
+                            value="{{ form_data.total_transaction_amount if form_data else '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field field-full">
+
+                        <label>Average Transaction Amount</label>
+
+                        <input
+                            type="number"
+                            id="average_transaction_amount"
+                            name="average_transaction_amount"
+                            min="0"
+                            step="0.01"
+                            placeholder="Average transaction amount"
+                            value="{{ form_data.average_transaction_amount if form_data else '' }}"
+                            readonly
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <button type="submit" class="predict-btn">
+
+                    Predict Customer Segment
+
+                    <span>→</span>
+
+                </button>
+                <button type="button" class="reset-btn">
+                    Clear Form
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- RESULT -->
+
+        <section class="result-panel">
+
+            <div class="panel-heading">
+
+                <span class="step">02</span>
+
+                <div>
+
+                    <h2>Prediction</h2>
+
+                    <p>
+                        Customer segment will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if prediction_message.value %}
+
+                <div class="prediction-result">
+
+                    <span class="result-label">
+                        CUSTOMER SEGMENT
+                    </span>
+
+                    <h2>
+                        {{ prediction_message.value }}
+                    </h2>
+
+                    <p>
+                        The K-Means model assigned the customer
+                        to this segment based on the submitted
+                        financial and transaction patterns.
+                    </p>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-result">
+
+                    <div class="result-icon">?</div>
+
+                    <h3>Awaiting Prediction</h3>
+
+                    <p>
+                        Enter customer details and click
+                        <strong>Predict Customer Segment</strong>.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+
+    <!-- INSIGHTS -->
+
+    <section class="insights">
+
+        <div class="insights-heading">
+
+            <span class="step">03</span>
+
+            <div>
+
+                <h2>Model & Prediction Insights</h2>
+
+                <p>
+                    How this customer segment was generated.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if explanation_message.value %}
+
+            <div class="prediction-explanation">
+
+                <h3>
+                    {{ prediction_message.value }}
+                </h3>
+
+                <p>
+                    {{ explanation_message.value }}
+                </p>
+
+
+                <h4>Segmentation Information</h4>
+
+                <ul>
+
+                    <li>
+                        Algorithm — K-Means Clustering
+                    </li>
+
+                    <li>
+                        Number of clusters — 4
+                    </li>
+
+                    <li>
+                        Features — Financial and transaction behavior
+                    </li>
+
+                    <li>
+                        Scaling — StandardScaler
+                    </li>
+
+                </ul>
+
+
+                <p>
+                    The segments represent groups of customers
+                    with relatively similar patterns in the selected
+                    features.
+                </p>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-result">
+
+                <div class="result-icon">?</div>
+
+                <h3>Awaiting Prediction</h3>
+
+                <p>
+                    Generate a prediction to view model insights.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <footer>
+        Banking Analytics • Machine Learning Project
+    </footer>
+
+
+{% endwith %}
+
+</div>
+<script>
+        document.querySelector(".reset-btn").addEventListener("click", function () {
+            window.location.href = window.location.pathname;
+        });
+
+        const totalTransactions = document.querySelector('[name="total_transactions"]');
+        const totalAmount = document.querySelector('[name="total_transaction_amount"]');
+        const averageAmount = document.getElementById('average_transaction_amount');
+    
+        function calculateAverage() {
+            const transactions = parseFloat(totalTransactions.value);
+            const amount = parseFloat(totalAmount.value);
+    
+            if (transactions > 0 && amount >= 0) {
+                averageAmount.value = (amount / transactions).toFixed(2);
+            } else {
+                averageAmount.value = "";
+            }
+        }
+    
+        totalTransactions.addEventListener("input", calculateAverage);
+        totalAmount.addEventListener("input", calculateAverage);
+
+</script>
+
+</body>
+
+</html>

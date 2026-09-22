@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Loan Approval Prediction</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/loan_approval.css') }}">
+</head>
+
+<body>
+
+    <div class="loan-page">
+
+        <!-- Get flash messages only once -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% set prediction_message = namespace(value=None) %}
+            {% set explanation_message = namespace(value=None) %}
+
+            {% for category, message in messages %}
+
+                {% if category == "prediction" %}
+                    {% set prediction_message.value = message %}
+
+                {% elif category == "explanation" %}
+                    {% set explanation_message.value = message %}
+
+                {% endif %}
+
+            {% endfor %}
+
+
+            <!-- Top Navigation -->
+            <header class="loan-header">
+
+                <div>
+                    <span class="brand">BANKING ANALYTICS</span>
+                    <h1>Loan Approval Prediction</h1>
+                </div>
+
+                <a href="/" class="home-btn">← Home</a>
+
+            </header>
+
+
+            <!-- Main Prediction Area -->
+            <main class="prediction-layout">
+
+                <!-- LEFT: INPUT FORM -->
+                <section class="input-panel">
+
+                    <div class="panel-heading">
+
+                        <span class="step">01</span>
+
+                        <div>
+                            <h2>Applicant Details</h2>
+                            <p>Enter the required information.</p>
+                        </div>
+
+                    </div>
+
+
+                    <form method="POST">
+
+                        <div class="field-grid">
+
+                            <div class="field">
+                                <label>Gender</label>
+
+                                <select name="gender" required>
+                                    <option value="">Select</option>
+                                    <option value="Male"
+                                        {% if form_data and form_data.gender == "Male" %}selected{% endif %}>
+                                        Male</option>
+                                    <option value="Female"
+                                        {% if form_data and form_data.gender == "Female" %}selected{% endif %}>
+                                        Female</option>
+                                </select>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Marital Status</label>
+
+                                <select name="marital_status" required>
+                                    <option value="">Select</option>
+                                    <option value="Single"
+                                        {% if form_data and form_data.marital_status == "Single" %}selected{% endif %}>
+                                        Single
+                                    </option>
+                                    <option value="Married"
+                                        {% if form_data and form_data.marital_status == "Married" %}selected{% endif %}>
+
+                                        Married
+                                    </option>
+                                </select>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Age</label>
+
+                                <input
+                                    type="number"
+                                    name="age"
+                                    min="18"
+                                    max="80"
+                                    placeholder="e.g. 30"
+                                    value="{{ form_data.age if form_data else '' }}"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="field">
+                                <label>CIBIL Score</label>
+
+                                <input
+                                    type="number"
+                                    name="cibil_score"
+                                    min="300"
+                                    max="900"
+                                    placeholder="300 - 900"
+                                    value="{{ form_data.cibil_score if form_data else '' }}"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="field field-full">
+                                <label>Occupation</label>
+
+                                <input
+                                    type="text"
+                                    name="occupation"
+                                    placeholder="e.g. Software Developer"
+                                    value="{{ form_data.occupation if form_data else '' }}"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="field">
+                                <label>Annual Income</label>
+
+                                <input
+                                    type="number"
+                                    name="annual_income"
+                                    placeholder="Annual income"
+                                    value="{{ form_data.annual_income if form_data else '' }}"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="field">
+                                <label>Account Balance</label>
+
+                                <input
+                                    type="number"
+                                    name="account_balance"
+                                    placeholder="Account balance"
+                                    value="{{ form_data.account_balance if form_data else '' }}"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="field">
+                                <label>Account Type</label>
+
+                                <select name="account_type" required>
+                                    <option value="">Select</option>
+                                    <option value="Savings"
+                                        {% if form_data and form_data.account_type == "Savings" %}selected{% endif %}>
+
+                                        Savings</option>
+                                    <option value="Current"
+                                        {% if form_data and form_data.account_type == "Current" %}selected{% endif %}>
+
+                                        Current</option>
+                                </select>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Loan Type</label>
+
+                                <select name="loan_type" required>
+                                    <option value="">Select</option>
+                                    <option value="Personal Loan"
+                                        {% if form_data and form_data.loan_type == "Personal Loan" %}selected{% endif %}>
+                                        Personal Loan
+                                    </option>
+                                    
+                                    <option value="Home Loan"
+                                        {% if form_data and form_data.loan_type == "Home Loan" %}selected{% endif %}>
+                                        Home Loan
+                                    </option>
+                                    
+                                    <option value="Car Loan"
+                                        {% if form_data and form_data.loan_type == "Car Loan" %}selected{% endif %}>
+                                        Car Loan
+                                    </option>
+                                    
+                                    <option value="Education Loan"
+                                        {% if form_data and form_data.loan_type == "Education Loan" %}selected{% endif %}>
+                                        Education Loan
+                                    </option>
+                                    
+                                    <option value="Business Loan"
+                                        {% if form_data and form_data.loan_type == "Business Loan" %}selected{% endif %}>
+                                        Business Loan
+                                    </option>
+                                </select>
+                            </div>
+
+
+                            <div class="field">
+                                <label>Loan Amount</label>
+
+                                <input
+                                    type="number"
+                                    name="loan_amount"
+                                    placeholder="Loan amount"
+                                    value="{{ form_data.loan_amount if form_data else '' }}"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="field">
+                                <label>Interest Rate (%)</label>
+
+                                <input
+                                    type="number"
+                                    name="interest_rate"
+                                    step="0.01"
+                                    placeholder="e.g. 10"
+                                    value="{{ form_data.interest_rate if form_data else '' }}"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="field">
+                                <label>Tenure (Months)</label>
+
+                                <input
+                                    type="number"
+                                    name="tenure_months"
+                                    placeholder="e.g. 60"
+                                    value="{{ form_data.tenure_months if form_data else '' }}"
+
+                                    required
+                                >
+                            </div>
+
+                        </div>
+
+
+                        <button type="submit" class="predict-btn">
+                            Predict Loan Status
+                            <span>→</span>
+                        </button>
+                        <button type="button" class="reset-btn">
+                            Clear Form
+                        </button>
+
+                    </form>
+
+                </section>
+
+
+                <!-- RIGHT: PREDICTION -->
+                <section class="result-panel">
+
+                    <div class="panel-heading">
+
+                        <span class="step">02</span>
+
+                        <div>
+                            <h2>Prediction</h2>
+                            <p>Model output will appear here.</p>
+                        </div>
+
+                    </div>
+
+
+                    {% if prediction_message.value %}
+
+                        <div class="prediction-result">
+
+                            <span class="result-label">
+                                MODEL PREDICTION
+                            </span>
+
+                            <h2>
+                                {{ prediction_message.value }}
+                            </h2>
+
+                            <p>
+                                Based on the information provided,
+                                the trained Decision Tree model generated
+                                this prediction.
+                            </p>
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="empty-result">
+
+                            <div class="result-icon">?</div>
+
+                            <h3>Awaiting Prediction</h3>
+
+                            <p>
+                                Complete the form and click
+                                <strong>Predict Loan Status</strong>
+                                to see the model output.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+            </main>
+
+
+            <!-- MODEL & PREDICTION INSIGHTS -->
+                       <!-- MODEL & PREDICTION INSIGHTS -->
+            <section class="insights">
+            
+                <div class="insights-heading">
+            
+                    <span class="step">03</span>
+            
+                    <div>
+                        <h2>Model & Prediction Insights</h2>
+                        <p>How this prediction was generated.</p>
+                    </div>
+            
+                </div>
+            
+            
+                {% if explanation_message.value %}
+            
+                    <div class="prediction-explanation">
+            
+                        <h3>
+                            {{ prediction_message.value }}
+                        </h3>
+            
+                        <p>
+                            {{ explanation_message.value }}
+                        </p>
+            
+                        <h4>Important Model Features</h4>
+            
+                        <ul>
+            
+                            <li>
+                                CIBIL Score — approximately 52.7% feature importance
+                            </li>
+            
+                            <li>
+                                Annual Income — approximately 26.9% feature importance
+                            </li>
+            
+                            <li>
+                                Loan Amount — approximately 18.8% feature importance
+                            </li>
+            
+                            <li>
+                                Interest Rate — approximately 1.5% feature importance
+                            </li>
+            
+                        </ul>
+            
+                        <p>
+                            Feature importance describes how the Decision Tree
+                            used variables for its splits; it does not establish
+                            a causal relationship.
+                        </p>
+            
+                    </div>
+            
+                {% else %}
+            
+                    <div class="empty-result">
+            
+                        <div class="result-icon">?</div>
+            
+                        <h3>Awaiting Prediction</h3>
+            
+                        <p>
+                            Complete the form and generate a prediction
+                            to view the model insights.
+                        </p>
+            
+                    </div>
+            
+                {% endif %}
+            
+            </section>
+
+
+            <footer>
+                Banking Analytics • Machine Learning Project
+            </footer>
+
+        {% endwith %}
+
+    </div>
+        <script>
+            document.querySelector(".reset-btn").addEventListener("click", function () {
+                window.location.href = window.location.pathname;
+            });
+        </script>
+</body>
+
+</html>

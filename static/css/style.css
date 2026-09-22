@@ -1,0 +1,184 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eef1f5;
+    color: #172033;
+}
+
+
+/* ================================
+   MAIN CONTAINER
+================================ */
+
+.container {
+    width: 92%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+/* ================================
+   HEADER
+================================ */
+
+header {
+    background: #172033;
+    color: white;
+    padding: 55px 0;
+}
+
+header h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
+
+header p {
+    font-size: 15px;
+    color: #cbd1da;
+}
+
+
+/* ================================
+   MAIN SECTION
+================================ */
+
+main {
+    padding: 60px 0 70px;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.section-title h2 {
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.section-title p {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+
+/* ================================
+   SOLUTION CARDS
+================================ */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #dfe3e8;
+    border-radius: 12px;
+    padding: 28px;
+    min-height: 230px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.card h3 {
+    font-size: 19px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.card p {
+    color: #667085;
+    font-size: 14px;
+    line-height: 1.6;
+    flex: 1;
+}
+
+.card a {
+    display: inline-block;
+    margin-top: 25px;
+
+    text-decoration: none;
+    color: #172033;
+
+    border: 1px solid #cbd1da;
+    border-radius: 7px;
+
+    padding: 10px 14px;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    width: fit-content;
+}
+
+.card a:hover {
+    background: #172033;
+    color: white;
+    border-color: #172033;
+}
+
+
+/* ================================
+   FOOTER
+================================ */
+
+footer {
+    text-align: center;
+    padding: 25px 0;
+
+    border-top: 1px solid #dfe3e8;
+
+    color: #7b8493;
+    font-size: 12px;
+}
+
+
+/* ================================
+   RESPONSIVE DESIGN
+================================ */
+
+@media (max-width: 900px) {
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        min-height: auto;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .container {
+        width: 94%;
+    }
+
+    header {
+        padding: 40px 0;
+    }
+
+    header h1 {
+        font-size: 28px;
+    }
+
+    main {
+        padding: 40px 0 50px;
+    }
+
+    .section-title h2 {
+        font-size: 22px;
+    }
+
+}
