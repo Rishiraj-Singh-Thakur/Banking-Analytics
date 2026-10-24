@@ -1,363 +1,431 @@
-# 🎓 LectureLens
+# 🏦 Banking Analytics
 
-**Find Any Topic. Jump to the Exact Moment.**
+An end-to-end Banking Analytics and Machine Learning project built to analyze banking data, identify customer patterns, detect suspicious transactions, and predict loan approval outcomes.
 
-LectureLens is a web application designed to help students find specific topics inside Python lecture videos without manually watching entire lectures. Search for a concept, discover relevant lecture content, and locate the timestamp where that topic is discussed.
+The project covers the complete journey from **data generation and SQL analysis to data cleaning, machine learning, Flask development, and live deployment**.
 
-The project combines speech transcription, text embeddings, similarity search, MySQL database storage, and a Flask web interface to make lecture revision faster and easier.
+## 🌐 Live Demo
 
----
+👉 **[Live Banking Analytics Application](https://banking-analytics-5yva.onrender.com/)**
 
-## 🌐 Project Status
+The live application provides three machine learning use cases:
 
-**Currently under development**
-
-- GitHub Repository: [LectureLens](https://github.com/Rishiraj-Singh-Thakur/LectureLens)
-- Live Demo: To be added after deployment.
+- Loan Approval Prediction
+- Transaction Anomaly Detection
+- Customer Segmentation
 
 ---
 
 ## 📌 Project Overview
 
-Finding a particular topic in a long programming lecture can take considerable time. Students often need to search through multiple videos to find explanations of concepts such as loops, dictionaries, functions, or object-oriented programming.
+The goal of this project is to build a practical banking analytics system using customer, account, loan, and transaction data.
 
-LectureLens aims to solve this problem by connecting searchable lecture content with its corresponding timestamps.
+The project was developed from scratch and includes:
 
-The project brings together:
-
-- Lecture audio processing
-- Speech-to-text transcription using OpenAI Whisper
-- Text chunking and embedding generation
-- Semantic similarity search
-- MySQL database integration
-- A Flask-based web application
-- A simple interface for finding relevant lecture content
-
----
-
-## 🎯 Problem Statement
-
-When revising a programming course, students may remember a topic but not the lecture or timestamp where it was explained.
-
-Manually searching through long videos can be time-consuming.
-
-LectureLens is designed to make this process easier by allowing users to search for a topic and find relevant lecture content with timestamps.
-
-## 💡 Proposed Solution
-
-LectureLens processes lecture content into searchable text and associates that content with lecture metadata and timestamps.
-
-When a user searches for a topic, the application uses its search pipeline to retrieve relevant content and help the user identify where to continue watching.
-
-**Example queries:**
-
-- Where are loops explained?
-- Which lecture covers dictionaries?
-- Find the explanation of OOP.
-- Where is list comprehension taught?
-- Find the lecture about Python functions.
+- Synthetic banking data generation
+- MySQL database design
+- SQL analysis
+- Data cleaning and validation
+- Exploratory Data Analysis
+- Machine Learning
+- Model evaluation
+- Model serialization
+- Flask web application
+- Live deployment using Render
 
 ---
 
-## ✨ Features
+## 🎯 Business Use Cases
 
-### 🔎 Topic Search
-Search for programming concepts and retrieve relevant lecture content.
+### 1. Loan Approval Prediction
+Predict whether a loan application is likely to be:
+- Approved
+- Rejected
 
-### ⏱️ Timestamp Discovery
-Identify timestamps associated with matching lecture content.
+The model uses customer and loan-related information such as:
+- Age
+- Gender
+- Marital Status
+- Occupation
+- Annual Income
+- CIBIL Score
+- Account Type
+- Account Balance
+- Loan Type
+- Loan Amount
+- Interest Rate
+- Tenure
+- EMI
 
-### 🎙️ Audio Transcription
-Use OpenAI Whisper to convert lecture audio into text.
+#### Models Tested
+- Logistic Regression
+- Decision Tree Classifier
 
-### 🧠 Text Embeddings
-Generate text embeddings using Ollama's `bge-m3` model.
+The final application uses a Decision Tree Classifier with `max_depth=10`.
 
-### 🔍 Similarity Search
-Use Scikit-learn-based similarity search to identify relevant content.
+#### Model Results (Test Accuracy)
 
-### 🗄️ MySQL Integration
-Store and retrieve lecture-related information from a MySQL database.
+- **Logistic Regression:** 85.60%
+- **Decision Tree (max_depth=10):** 99.88%
 
-### 🌐 Web Interface
-Access the application's search and lecture-related functionality through a Flask web interface.
-
-### 🎬 Lecture Processing
-Support the lecture-processing workflow for preparing video and audio content for searching.
+> **Note on Performance:** The high accuracy of the Decision Tree is due to synthetic rule-based target generation, allowing the tree to capture clear decision boundaries. In production on noisy real-world banking data, ensemble models (such as Random Forest or XGBoost) with cross-validation would be used to prevent overfitting.
 
 ---
 
-## 🏗️ System Architecture
+### 2. 🚨 Transaction Anomaly Detection
+The transaction dataset does not contain confirmed fraud labels.
+Therefore, an unsupervised anomaly detection approach was used.
 
-The following diagram represents the intended end-to-end processing and search workflow.
+#### Algorithm
+**Isolation Forest**
 
-```mermaid
-flowchart TD
-    A[Lecture Videos] --> B[Audio Extraction]
-    B --> C[Whisper Transcription]
-    C --> D[Text with Timestamps]
-    D --> E[Text Chunking]
-    E --> F[Ollama bge-m3 Embeddings]
-    F --> G[MySQL and Vector Data]
-    H[User Topic Query] --> I[Query Processing]
-    I --> J[Similarity Search]
-    G --> J
-    J --> K[Relevant Lecture Results]
-    K --> L[Flask Web Interface]
+The model analyzes:
+- Transaction Amount
+- Balance After Transaction
+- Transaction Mode
+
+The application classifies transactions as:
+- Normal
+- Potentially Suspicious
+
+> An anomaly does not necessarily mean confirmed fraud. Suspicious transactions require further investigation.
+
+#### Model Configuration
+```python
+IsolationForest(
+    n_estimators=100,
+    contamination=0.01,
+    random_state=42,
+    n_jobs=-1
+)
+```
+---
+### 3. 👥 Customer Segmentation
+Customer segmentation was performed using K-Means Clustering.
+
+The objective is to group customers based on their financial and transaction behavior.
+
+#### Features Used
+
+- Age
+- Annual Income
+- CIBIL Score
+- Account Balance
+- Total Transactions
+- Total Transaction Amount
+- Average Transaction Amount
+
+The selected number of clusters was **K = 4**.
+
+| Cluster | Segment |
+|---------|---------|
+| 0 | Low Activity Customers |
+| 1 | Active Customers |
+| 2 | High Balance Customers |
+| 3 | High Income Customers |
+
+---
+### 🏗️ Project Architecture
+```
+                    ┌─────────────────────┐
+                    │    Banking Data     │
+                    │ Customers / Loans   │
+                    │ Accounts /          │
+                    │ Transactions        │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │       MySQL         │
+                    │   Database Layer    │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Data Cleaning & EDA │
+                    │    Pandas / SQL     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+              ┌────────────────────────────────┐
+              │       Machine Learning         │
+              │                                │
+              │ Loan Approval → Decision Tree  │
+              │ Anomaly Detection → Isolation  │
+              │ Forest                         │
+              │ Segmentation → K-Means         │
+              └───────────────┬────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │    Saved Models     │
+                    │        .pkl         │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │    Flask Web App    │
+                    │    HTML / CSS / JS  │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │       Render        │
+                    │   Live Deployment   │
+                    └─────────────────────┘
+```
+---
+#### 📂 Project Structure:
+```
+Banking-Analytics/
+│
+├── Data/
+│
+├── Notebooks/
+│   ├── 01_Create_Database.ipynb
+│   ├── 02_Create_Tables.ipynb
+│   ├── 03_Generate_Data.ipynb
+│   ├── ...
+│
+├── ML/
+│   ├── A_Loan_Approval_Prediction.ipynb
+│   ├── B_Transaction Anomaly Detection.ipynb
+│   └── C_Customer_Segmentation.ipynb
+│
+├── Models/
+│   ├── loan_approval_model.pkl
+│   ├── loan_approval_preprocessor.pkl
+│   ├── transaction_anomaly_model.pkl
+│   ├── transaction_anomaly_scaler.pkl
+│   ├── customer_segmentation_model.pkl
+│   └── customer_segmentation_scaler.pkl
+│
+├── screenshots/
+│   ├── home.png
+│   ├── loan-approval.png
+│   ├── transaction-anomaly.png
+│   └── customer-segmentation.png
+│
+├── templates/
+├── static/
+├── app.py
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
+---
+#### 🛠️ Tech Stack
+Programming:
+- Python
+  
+Data Analysis:
+- Pandas
+- NumPy
+  
+Database:
+- MySQL
+- SQLAlchemy
+- PyMySQL
+  
+Machine Learning:
+- Scikit-learn
+- Logistic Regression
+- Decision Tree
+- Isolation Forest
+- K-Means Clustering
+- StandardScaler
+- OneHotEncoder
+- ColumnTransformer
+  
+Web Development:
+- Flask
+- HTML
+- CSS
+- JavaScript
+  
+Deployment:
+- GitHub
+- Render
+  
+Development:
+- Jupyter Notebook
+- Anaconda
+---
+#### 🧹 Data Cleaning & Validation
+Before applying machine learning, the banking data was cleaned and validated.
+
+Major checks included:
+- Duplicate detection
+- Missing value handling
+- Data type validation
+- Numerical range validation
+- Loan EMI consistency
+- Transaction balance consistency
+- Transaction date validation
+- Customer-account relationship validation
+- Loan-customer relationship validation
+  
+The cleaned transaction dataset contains:
+748,514 transactions
+---
+#### 📊 Dataset
+The project uses synthetic banking data created specifically for this project.
+Major entities include:
+- Customers
+- Accounts
+- Loans
+- Transactions
+  
+>The data was generated to provide banking scenarios for SQL analysis, data cleaning, and machine learning.
+---
+#### 🤖 Machine Learning Workflow:
+```
+                      Raw Data
+                         ↓
+                      Data Cleaning
+                         ↓
+                      Feature Selection
+                         ↓
+                      Train-Test Split
+                         ↓
+                      Feature Preprocessing
+                         ↓
+                      Model Training
+                         ↓
+                      Prediction
+                         ↓
+                      Model Evaluation
+                         ↓
+                      Model Serialization
+                         ↓
+                      Flask Integration
 ```
 
-*Note: This is a conceptual representation of the processing and search pipeline. The final diagram should be updated if the implementation changes.*
-
 ---
+#### 📸 Application Screenshots
+### 🏠 Home Page
+![Home Page](screenshots/home.png)
 
-## ⚙️ How It Works
+### 💰 Loan Approval Prediction
+![Loan Approval](screenshots/loan-approval.png)
 
-### 1. Lecture Input
-Lecture videos are prepared for processing.
+### 🚨 Transaction Anomaly Detection
+![Transaction Anomaly](screenshots/transaction-anomaly.png)
 
-### 2. Audio Processing
-Audio is extracted from videos when required, using the project's media-processing workflow and FFmpeg.
-
-### 3. Speech Transcription
-OpenAI Whisper converts spoken lecture content into text.
-
-### 4. Text Chunking
-Transcribed content is divided into smaller sections suitable for searching, while retaining the relevant lecture and timestamp information.
-
-### 5. Embedding Generation
-Ollama's `bge-m3` model generates vector representations of text for semantic comparison.
-
-### 6. Data Storage
-Lecture metadata and searchable content are stored in the project's database and vector-data workflow.
-
-### 7. Topic Search
-A user enters a programming topic through the web interface.
-
-### 8. Similarity Search
-The search pipeline identifies relevant lecture content based on similarity.
-
-### 9. Results
-The application presents relevant lecture information and associated timestamps so the user can locate the explanation more easily.
-
+### 👥 Customer Segmentation
+![Customer Segmentation](screenshots/customer-segmentation.png)
 ---
+#### ⚙️ Local Setup
 
-## 🛠️ Tech Stack
-
-| Category | Technology |
-|---|---|
-| Programming Language | Python |
-| Backend | Flask |
-| Frontend | HTML, CSS, JavaScript |
-| Database | MySQL |
-| Speech Transcription | OpenAI Whisper |
-| Embedding Model | Ollama — `bge-m3` |
-| Similarity Search | Scikit-learn |
-| Data Processing | Python |
-| Media Processing | FFmpeg |
-| Version Control | Git and GitHub |
-| Development Environment | Anaconda, VS Code |
-
----
-
-## 📂 Project Structure
-
-```text
-Lecture Timestamp Finder (Project -2)/
-│
-├── 01_data/                    # Local data and processing files
-│   ├── 01_Videos/              # Source videos (local)
-│   ├── 02_audios/              # Extracted audio (local)
-│   └── processing/             # Intermediate files (local)
-│
-├── 02_vectors/
-│   └── chunk_vectors.npy       # Local vector data, excluded from Git
-│
-├── 03_backend/
-│   ├── lecture_links.py        # Lecture links and related functionality
-│   ├── search_engine.py        # Search and retrieval logic
-│   ├── sql_practice.py         # SQL-related code
-│   └── uploading_on_database.py # Database upload functionality
-│
-├── 04_scripts/
-│   └── ...                     # Processing and utility scripts
-│
-├── 05_templates/
-│   └── templates/              # HTML templates
-│
-├── 06_static/
-│   └── static/                 # CSS, JavaScript and static assets
-│
-├── app.py                      # Flask application entry point
-├── requirements.txt            # Python dependencies
-├── .gitignore                  # Excluded files and directories
-├── .env                        # Local configuration (not committed)
-└── README.md                   # Project documentation
-```
-
-*Folder descriptions should be checked against the actual files before this section is finalized.*
-
----
-
-## 💻 Requirements
-
-Before setting up LectureLens locally, ensure the following are available:
-
-- Python and pip
-- MySQL Server
-- Ollama
-- Ollama's `bge-m3` embedding model
-- FFmpeg
-- Git
-
-Whisper and other Python dependencies are installed through `requirements.txt`.
-
----
-
-## 🚀 Local Installation and Setup
-
-### 1. Clone the Repository
+1. Clone the Repository
 
 ```bash
-git clone https://github.com/Rishiraj-Singh-Thakur/LectureLens.git
-cd LectureLens
+git clone https://github.com/Rishiraj-Singh-Thakur/Banking-Analytics.git
+cd Banking-Analytics
 ```
 
-### 2. Install Python Dependencies
+2. Create a Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+ Activate it on Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-FLASK_SECRET_KEY=your_secret_key
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=your_mysql_username
-MYSQL_PASSWORD=your_mysql_password
-MYSQL_DATABASE=lecture_timestamp_finder
-```
-
-Replace the example values with your own local configuration.
-
-### 4. Prepare MySQL
-
-Ensure that MySQL Server is running and the configured database exists. Any required tables should be created using the project's database setup workflow.
-
-### 5. Prepare Ollama
-
-Install Ollama and download the embedding model:
-
-```bash
-ollama pull bge-m3
-```
-
-Ensure Ollama is running before using functionality that depends on it.
-
-### 6. Configure FFmpeg
-
-Install FFmpeg and ensure it is accessible from your terminal if the lecture-processing scripts require it.
-
-### 7. Run the Application
+4. Run the Flask Application
 
 ```bash
 python app.py
 ```
 
-Open the local URL printed in the terminal to access the application.
+The application will be available at:
+
+```text
+http://127.0.0.1:5000/
+```
 
 ---
-
-## 🔐 Environment Variables and Security
-
-LectureLens uses environment variables for configuration.
-
-| Variable | Purpose |
-|---|---|
-| `FLASK_SECRET_KEY` | Flask session and application secret |
-| `MYSQL_HOST` | MySQL server hostname |
-| `MYSQL_PORT` | MySQL server port |
-| `MYSQL_USER` | MySQL username |
-| `MYSQL_PASSWORD` | MySQL password |
-| `MYSQL_DATABASE` | Database name |
-
-**Security guidelines:**
-
-- Never commit `.env` files or database passwords.
-- Never hard-code API keys or other secrets in source files.
-- Keep local videos, audio, and large intermediate data files out of Git when they are not required in the repository.
-- Rotate any credential that has been exposed.
-
+#### 🔐 Environment Variables
+Database credentials are stored using environment variables instead of hard-coded credentials.
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+```
+The .env file is excluded from Git using .gitignore
 ---
-
-## 📸 Application Screenshots
-
-Screenshots will be added after capturing the current application interface.
-
-Suggested layout:
-
-### 🏠 Home Page
-`![LectureLens Home Page](screenshots/home.png)`
-
-### 🔎 Topic Search
-`![Topic Search](screenshots/topic-search.png)`
-
-### ⏱️ Search Results and Timestamps
-`![Search Results](screenshots/search-results.png)`
-
-*Create the `screenshots/` directory and add the corresponding image files before enabling these images in the published README.*
-
+#### 🚀 Deployment
+The Flask application is deployed using Render.
+Deployment flow:
+```
+            GitHub Repository
+                   ↓
+            Render
+                   ↓
+            Install Dependencies
+                   ↓
+            Gunicorn
+                   ↓
+            Flask Application
+                   ↓
+            Live Web Application
+```
 ---
+### 📚 Key Learnings
+Through this project, I worked on:
 
-## 🧩 Challenges and Learnings
-
-This project provides practical experience with:
-
-- Processing long-form educational audio
-- Transcribing spoken content into searchable text
-- Working with text embeddings and semantic retrieval
-- Preserving timestamp information during processing
-- Connecting Python applications to MySQL
-- Integrating search functionality into Flask
-- Managing Python dependencies and local configuration
-- Using Git and GitHub to version-control a project
-- Preparing an application for deployment
-
+- Designing a banking database
+- Generating large-scale synthetic datasets
+- Writing SQL queries for analytics
+- Cleaning and validating banking data
+- Performing exploratory data analysis
+- Preparing datasets for machine learning
+- Handling numerical and categorical features
+- Comparing machine learning models
+- Building unsupervised anomaly detection
+- Performing customer segmentation
+- Saving and loading ML models
+- Integrating ML models with Flask
+- Building a user-friendly prediction interface
+- Deploying a Python application to the cloud
 ---
-
-## 🔮 Future Improvements
-
-Potential improvements include:
-
-- Deploy the web application and publish a live demo.
-- Add direct links that open videos at the relevant timestamps.
-- Improve ranking of search results.
-- Add filters for lectures and topics.
-- Expand support to additional courses and subjects.
-- Improve processing performance for longer lecture collections.
-- Improve error handling and search-result presentation.
-- Add a more comprehensive set of application screenshots.
-
+### 🔮 Future Improvements
+Possible future improvements include:
+- Better fraud detection using labeled fraud data
+- Model explainability using SHAP
+- Customer-level anomaly detection
+- Model monitoring
+- Authentication and user management
+- Additional banking analytics
+- Improved model validation using cross-validation
 ---
-
 ## 👨‍💻 Author
 
-**Rishiraj Singh Thakur**
+**Rishiraj Singh Thakur**  
+*Data Science | Machine Learning | Python | SQL*
 
-*Python | Data Science | Machine Learning | SQL*
-
-- **GitHub Repository:** [LectureLens](https://github.com/Rishiraj-Singh-Thakur/LectureLens)
-
+- 🌐 **Live Demo:** [banking-analytics-5yva.onrender.com](https://banking-analytics-5yva.onrender.com/)
+- 💻 **GitHub Repository:** [Rishiraj-Singh-Thakur/Banking-Analytics](https://github.com/Rishiraj-Singh-Thakur/Banking-Analytics)
+- 💼 **LinkedIn:** [rishiraj-singh-thakur-jerry01](https://www.linkedin.com/in/rishiraj-singh-thakur-jerry01/)
+- 🐦 **X (Twitter):** [@RishirajSingh_X](https://x.com/RishirajSingh_X)
+- 📧 **Email:** [rishiirajsinghthakur@gmail.com](mailto:rishiirajsinghthakur@gmail.com)
 ---
 
 ## ⭐ Project Highlights
 
-- **Educational Search:** Find programming concepts inside lecture content.
-- **Speech-to-Text:** Use Whisper to transcribe lecture audio.
-- **Semantic Retrieval:** Use embeddings and similarity search to find relevant content.
-- **Database Integration:** Manage searchable lecture data using MySQL.
-- **Full-Stack Application:** Combine Python, Flask, HTML, CSS and JavaScript.
-- **End-to-End Learning:** Build a practical application spanning media processing, NLP-related tooling, database management and web development.
+- ✅ **End-to-End Delivery:** From raw synthetic data generation to cloud deployment.
+- ✅ **Relational Database:** MySQL schema design, relational constraints, and analytical SQL queries.
+- ✅ **Robust Preprocessing:** Complete data cleaning, validation checks, and feature pipelines.
+- ✅ **3 Applied ML Workflows:** Classification (Loan Approval), Anomaly Detection (Isolation Forest), and Segmentation (K-Means).
+- ✅ **Full-Stack ML Integration:** Models serialized with `pickle` and served via Flask.
+- ✅ **Production Deployment:** Live web application hosted on Render with Gunicorn.
